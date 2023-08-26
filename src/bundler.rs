@@ -133,7 +133,7 @@ impl<'a> Bundler<'a> {
                     .name("submod")
                     .ok_or_else(|| anyhow!("capture not found"))?
                     .as_str();
-                writeln!(self.bundle_file, "use ::{};", submod)?;
+                writeln!(self.bundle_file, "use {};", submod)?;
             } else {
                 self.write_line(&line)?;
             }
