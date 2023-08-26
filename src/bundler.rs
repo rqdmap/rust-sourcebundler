@@ -117,18 +117,17 @@ impl<'a> Bundler<'a> {
         let bin_fd = File::open(self.binrs_filename)?;
         let mut bin_reader = BufReader::new(&bin_fd);
 
-        let extcrate_re = source_line_regex(format!(r" extern  crate  {} ; ", self._crate_name))?;
         let useselfcrate_re =
             source_line_regex(format!(r" use  (?P<submod>{}::.*) ; ", self._crate_name))?;
+
+        writeln!(self.bundle_file, "pub mod {} {{", self._crate_name)?;
+        self.librs()?;
+        writeln!(self.bundle_file, "}}")?;
 
         let mut line = String::new();
         while bin_reader.read_line(&mut line)? > 0 {
             line.truncate(line.trim_end().len());
             if COMMENT_RE.is_match(&line) || WARN_RE.is_match(&line) {
-            } else if extcrate_re.is_match(&line) {
-                writeln!(self.bundle_file, "pub mod {} {{", self._crate_name)?;
-                self.librs()?;
-                writeln!(self.bundle_file, "}}")?;
             } else if let Some(cap) = useselfcrate_re.captures(&line) {
                 let submod = cap
                     .name("submod")
