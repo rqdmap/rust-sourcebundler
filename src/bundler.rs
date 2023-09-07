@@ -158,7 +158,8 @@ impl<'a> Bundler<'a> {
                     .name("m")
                     .ok_or_else(|| anyhow!("capture not found"))?
                     .as_str();
-                if modname != "tests" {
+                if !modname.contains("tests") {
+                    writeln!(self.bundle_file, "L162 {}", modname);
                     self.usemod(modname, modname, modname, 1)?;
                 }
             } else {
@@ -179,6 +180,7 @@ impl<'a> Bundler<'a> {
         mod_import: &str,
         lvl: usize,
     ) -> Result<()> {
+        writeln!(self.bundle_file, "mod_name = {}, mod_path = {}, mod_import = {}", mod_name, mod_path, mod_import);
         let mod_filenames0 = vec![
             format!("src/{}.rs", mod_path),
             format!("src/{}/mod.rs", mod_path),
@@ -218,7 +220,8 @@ impl<'a> Bundler<'a> {
                     .name("m")
                     .ok_or_else(|| anyhow!("capture not found"))?
                     .as_str();
-                if submodname != "tests" {
+                writeln!(self.bundle_file, "L222 {}", submodname);
+                if !submodname.contains("tests") {
                     let submodfile = format!("{}/{}", mod_path, submodname);
                     let submodimport = format!("{}::{}", mod_import, submodname);
                     self.usemod(
